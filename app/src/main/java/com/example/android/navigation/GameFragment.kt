@@ -23,6 +23,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.navigation.Navigation
 import com.example.android.navigation.databinding.FragmentGameBinding
 
 class GameFragment : Fragment() {
@@ -33,6 +34,7 @@ class GameFragment : Fragment() {
     // The first answer is the correct one.  We randomize the answers before showing the text.
     // All questions must have four answers.  We'd want these to contain references to string
     // resources so we could internationalize. (or better yet, not define the questions in code...)
+
     private val questions: MutableList<Question> = mutableListOf(
             Question(text = "What is Android Jetpack?",
                     answers = listOf("all of these", "tools", "documentation", "libraries")),
@@ -80,11 +82,11 @@ class GameFragment : Fragment() {
             val checkedId = binding.questionRadioGroup.checkedRadioButtonId
             // Do nothing if nothing is checked (id == -1)
             if (-1 != checkedId) {
-                var answerIndex = 0
-                when (checkedId) {
-                    R.id.secondAnswerRadioButton -> answerIndex = 1
-                    R.id.thirdAnswerRadioButton -> answerIndex = 2
-                    R.id.fourthAnswerRadioButton -> answerIndex = 3
+                var answerIndex = when (checkedId) {
+                    R.id.secondAnswerRadioButton ->  1
+                    R.id.thirdAnswerRadioButton ->  2
+                    R.id.fourthAnswerRadioButton ->  3
+                    else -> 0
                 }
                 // The first answer in the original question is always the correct one, so if our
                 // answer matches, we have the correct answer.
@@ -92,14 +94,15 @@ class GameFragment : Fragment() {
                     questionIndex++
                     // Advance to the next question
                     if (questionIndex < numQuestions) {
-                        currentQuestion = questions[questionIndex]
                         setQuestion()
                         binding.invalidateAll()
                     } else {
                         // We've won!  Navigate to the gameWonFragment.
+                        Navigation.findNavController(view).navigate(GameFragmentDirections.actionGameFragmentToGameWonFragment(numQuestions,questionIndex))
                     }
                 } else {
                     // Game over! A wrong answer sends us to the gameOverFragment.
+                    Navigation.findNavController(view).navigate(GameFragmentDirections.actionGameFragmentToGameOverFragment2())
                 }
             }
         }
